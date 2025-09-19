@@ -335,6 +335,16 @@ Module moduleB2S
         Return equal
     End Function
 
+    Public Function ConvertImageToPArgb(image As Image) As Image
+        If image IsNot Nothing AndAlso image.PixelFormat <> Imaging.PixelFormat.Format32bppPArgb Then
+            Dim fixed As New Bitmap(image.Width, image.Height, Imaging.PixelFormat.Format32bppPArgb)
+            Graphics.FromImage(fixed).DrawImage(image, New Rectangle(0, 0, image.Width, image.Height))
+            image.Dispose()
+            Return DirectCast(fixed, Image)
+        End If
+        Return image
+    End Function
+
     Public Function ImageToBase64(image As Image) As String
         If image IsNot Nothing Then
             With New System.Drawing.ImageConverter
@@ -351,10 +361,11 @@ Module moduleB2S
             Dim bytes() As Byte = Convert.FromBase64String(data)
             If bytes IsNot Nothing AndAlso bytes.Length > 0 Then
                 With New System.Drawing.ImageConverter
-                    image = CType(.ConvertFrom(bytes), Image)
+                    image = ConvertImageToPArgb(CType(.ConvertFrom(bytes), Image))
                 End With
             End If
         End If
+
         Return image
     End Function
 
